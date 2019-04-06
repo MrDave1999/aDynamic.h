@@ -173,6 +173,80 @@ Para la realización de ese programa se usó los siguientes header files:
 - [pscanf.h](https://github.com/MrDave1999/pscanf.h)
 - [assertx.h](https://github.com/MrDave1999/assertx.h)
 
+# Arrays de Estructuras
+
+Arrays de estructuras son búfers contiguos. Eso quiere decir que sí hago esto:
+```C
+#define MAX_ARRAYS 2
+#include <aDynamic.h>
+```
+Es como si tuviera 2 búfers contiguos de X elementos. Miremos el siguiente ejemplo:
+```C
+#define MAX_ARRAYS 1 /* Solo quiero un búfer contiguo */
+#include <aDynamic.h>
+
+enum ID_ARRAY
+{
+	ARRAY_A //La ID del primer búfer contiguo
+};
+
+/* Los elementos de cada búfer contiguo */
+struct _tipo
+{
+	float a;
+	int b;
+	char c;
+};
+
+/* Asignamos un alias al nombre de la estructura "_tipo" */
+typedef struct _tipo tipo;
+
+int Array(tipo** pa)
+{
+	/* El puntero aux es necesario para la invocación de las macros alloc_a y realloc_a */
+	tipo* aux;
+	/* Asignamos el tamaño del array de estructura */
+	setsize(ARRAY_A, 5);
+	/* Reservamos memoria para 5 buffers contiguos */
+	alloc_a(ARRAY_A, aux);
+	for (int i = 0; i != getsize(ARRAY_A); ++i)
+	{
+		aux[i].a = 2.9f;
+		aux[i].b = 5;
+		aux[i].c = 'a';
+	}
+	/* Re-dimensionamos el array de estructura a 2 buffers */
+	setsize(ARRAY_A, 2);
+	realloc_a(ARRAY_A, aux);
+	/* Mandamos la dirección de memoria del primer elemento de ese array al puntero que pasamos por referencia */
+	*pa = aux;
+	return 0;
+}
+
+int main(void)
+{
+	tipo* pa;
+	/* Pasamos la dirección de memoria del puntero PA */
+	error(Array, &pa);
+	printf("\n");
+	printf("[Updates]: data Array A:\n\n");
+	for (int i = 0; i != getsize(ARRAY_A); ++i)
+	{
+		printf("%f\n", pa[i].a);
+		printf("%d\n", pa[i].b);
+		printf("%c\n", pa[i].c);
+		printf("\n");
+	}
+	/* Liberamos el primer búfers contiguo */
+	free_a();
+	return 0;
+}
+```
+**Nota:** Búfers contiguo significa que varios búfer estarán juntos entre sí, por esa razón es posible usar esta sintaxis para acceder/modificar algún miembro de cualquier búfer.
+```C
+pa[i].a = 9;
+```
+
 # Créditos
 
 - [MrDave](https://github.com/MrDave1999)
