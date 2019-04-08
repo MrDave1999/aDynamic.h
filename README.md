@@ -32,6 +32,10 @@ Obtiene la cantidad de elementos de un array dinámico.
 
 Asigna una cantidad de elementos a un array dinámico.
   
+- `dmat_a(arrayid)`:
+
+Libera la memoria de un específico array dinámico.
+
 - `free_a()`:
 
 Libera la memoria de cada array dinámico que exista en el heap/montón.
@@ -59,8 +63,7 @@ int main(void)
 	/* El puntero pa y pb tendrán la dirección de memoria del primer elemento del array  */
 	alloc_a(ARRAY_ID1, pa);
 	alloc_a(ARRAY_ID2, pb);
-	/* Con esta macro liberamos la memoria de ambos arrays */
-	free_a();
+	/* La memoria se libera automáticamente */
 	return 0;
 }   
 ```
@@ -96,7 +99,7 @@ int main(void)
 {
 	if (Array(ARRAY_ID1, 7) == 1) return 1;
 	if (Array(ARRAY_ID2, 9) == 1) return 1;
-	free_a();
+	/* La memoria se libera automáticamente */
 	return 0;
 }
 
@@ -115,6 +118,7 @@ Es equivalente a esto:
 ```C
 error(Array, ARRAY_ID1, 7);
 ```
+La mayoría de las macros llevan un guion bajo + una letra 'a', eso hace referencia a un "array dinámico".
   
 # Uso
 
@@ -161,8 +165,7 @@ int main(void)
 	/* Llamamos la función y detectamos si hubo algún error en la asignación */
 	error(Re_DimensionarAB);
 
-	/* Libera la memoria del array A y B */
-	free_a();
+	/* La memoria se libera automáticamente */
 	return 0;
 }
 ```
@@ -237,8 +240,7 @@ int main(void)
 		printf("%c\n", pa[i].c);
 		printf("\n");
 	}
-	/* Liberamos el primer búfers contiguo */
-	free_a();
+	/* La memoria se libera automáticamente */
 	return 0;
 }
 ```
