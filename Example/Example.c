@@ -56,11 +56,7 @@ int main(void)
 		error(SumarArrays, SUM_A3, &size);
 		pauseprogram();
 		dataread("%c", &opcion, "\nQuieres salir del programa? Presiona la letra N \n");
-		if (opcion == 'n' || opcion == 'N')
-		{
-			free_a(); /* Liberamos la memoria de cada array dinámico */
-			break;
-		}
+		if (opcion == 'n' || opcion == 'N') break;
 	} while (1);
 	return EXIT_SUCCESS;
 }   
