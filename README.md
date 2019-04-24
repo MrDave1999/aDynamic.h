@@ -251,7 +251,7 @@ pa[i].a = 9;
 
 # Créditos
 
-- [MrDave](https://github.com/MrDave1999)
-  - Por la idea de crear aDynamic.h
-- [Microsoft](https://www.microsoft.com/es-ec/)
-  - Por el desarrollo de las funciones malloc y realloc.
+- [MrDave](https://github.com/MrDave1999) 
+	- Por el desarrollo de aDynamic.h
+- [Microsoft Corporation](https://github.com/Microsoft) 
+	- Se usó el compilador `cl.exe` para poder compilar los códigos de prueba, de ese modo se comprueba sí no hubo algún error.
