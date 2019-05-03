@@ -16,11 +16,13 @@ Sí vas a usar el include para varios programas, lo puedes agregar directamente 
 
 # Requisitos
 
-Para que el include funcione correctamente necesitas definir la macro `MAX_ARRAYS` antes de incluir `aDynamic.h`, de lo contrario, el compilador lanzará un error.
+- Para que el include funcione correctamente necesitas definir la macro `MAX_ARRAYS` antes de incluir `aDynamic.h`, de lo contrario, el compilador lanzará un error.
 ```C
 #define MAX_ARRAYS 3 /* Aquí especificas la cantidad de arrays dinámicos que vayas a utilizar .*/
 #include <aDynamic.h> /* Luego de eso, incluyes el archivo de cabecera */
 ```
+
+- Las identificaciones de los arrays dinámicos deben empezar desde 0, de lo contrario, habrá desbordamiento de búfer y eso ocasionaría que el problema aborte.
 
 # Macros
 
