@@ -33,7 +33,21 @@ Obtiene la cantidad de elementos de un array dinámico.
 - `setsize(arrayid, value)`:
 
 Asigna una cantidad de elementos a un array dinámico.
-  
+
+- `getal(typedata, arrayid, index)`:
+
+Obtiene un elemento específico de un arreglo dinámico.
+
+- `setal(typedata, arrayid, index, value)`:
+
+Asigna un elemento específico a un arreglo dinámico.
+
+**Nota:** La macro getal y setal solo sirve para arreglos dinámicos que no sean declarados como estructura.
+
+- `getad(arrayid) *(buf_ptr2 + arrayid)`:
+
+Obtiene la dirección de memoria del primer elemento de un arreglo dinámico. 
+
 - `dmat_a(arrayid)`:
 
 Libera la memoria de un específico array dinámico.
@@ -52,22 +66,23 @@ Asigna memoria para un array dinámico.
 #include <aDynamic.h> /* Incluimos el archivo de cabecera */
 
 /* La identificación de cada array debe comenzar desde 0 */
-#define ARRAY_ID1 0
-#define ARRAY_ID2 1
+enum
+{
+	ARRAY_ID1,
+	ARRAY_ID2
+};
 
 int main(void)
 {
-	int* pa;
-	int* pb;
 	/* Asignamos el tamaño de elementos del array A y B */
 	setsize(ARRAY_ID1, 5);
 	setsize(ARRAY_ID2, 6);
-	/* El puntero pa y pb tendrán la dirección de memoria del primer elemento del array  */
-	alloc_a(ARRAY_ID1, pa);
-	alloc_a(ARRAY_ID2, pb);
+	/* Asignamos memoria dinámicamente para crear el array A y B */
+	alloc_a(int, ARRAY_ID1);
+	alloc_a(int, ARRAY_ID2);
 	/* La memoria se libera automáticamente */
 	return 0;
-}   
+}  
 ```
 Sí llega a ver algún fallo en la asignación de memoria, la macro `alloc_a` hace que la función main retorne 1.
   
@@ -82,18 +97,20 @@ Re-dimensiona el tamaño de un array dinámico.
 #define MAX_ARRAYS 2
 #include <aDynamic.h>
 
-#define ARRAY_ID1 0
-#define ARRAY_ID2 1
+enum
+{
+	ARRAY_ID1,
+	ARRAY_ID2
+};
 
 int Array(const int arrayid, const int size)
 {
-	int* ptr;
 	setsize(arrayid, size);
 	/*
-	Con esta macro podemos asignar memoria solo una vez y luego de eso,
-	podemos re-dimensionará el array
+		Con esta macro podemos asignar memoria solo una vez y luego de eso,
+		podemos re-dimensionará el array
 	*/
-	realloc_a(arrayid, ptr);
+	realloc_a(float, arrayid);
 	return 0;
 }
 
@@ -104,7 +121,6 @@ int main(void)
 	/* La memoria se libera automáticamente */
 	return 0;
 }
-
 ```
 La macro "realloc_a" hace que la función "Array" retorne 1 si es que hubo algún fallo en la re-asignación de memoria. Por esa razón     cuando llamamos la función "Array" agregamos esa condición para detectar si hay un error al momento de re-dimensionar.
   
@@ -128,8 +144,8 @@ La mayoría de las macros llevan un guion bajo + una letra 'a', eso hace referen
 #define MAX_ARRAYS 2
 #include "aDynamic.h"
 
-enum 
-{ 
+enum
+{
 	AA,  //Array A
 	AB  //Array B
 };
@@ -138,13 +154,12 @@ enum
 int Re_DimensionarAB(void)
 {
 	int i;
-	int* pb;
 	/* Este código re-dimensiona el array B tres veces. */
 	for (setsize(AB, 1); getsize(AB) != 4; ++getsize(AB))
 	{
-		realloc_a(AB, pb);
+		realloc_a(int, AB);
 		for (i = 0; i != getsize(AB); ++i)
-			printf("%d\n", &pb[i]);
+			printf("%d\n", &getal(int, AB, i));
 		printf("\n");
 	}
 	return 0;
@@ -152,16 +167,14 @@ int Re_DimensionarAB(void)
 
 int main(void)
 {
-	/* Con este puntero podemos a acceder/modificar el array A */
-	char* pa;
 	/* Pedimos al usuario el tamaño de elementos del array A */
 	printf("Ingrese la cantidad de elementos del array A:\n");
 	scanf("%d", &getsize(AA));
 	/* Reservamos memoria para construir el array A */
-	alloc_a(AA, pa);
+	alloc_a(char, AA);
 	/* Imprime las direcciones de memoria de cada elemento del array A */
 	for (int i = 0; i != getsize(AA); ++i)
-		printf("%d\n", &pa[i]);
+		printf("%d\n", &getal(int, AA, i));
 
 	printf("\n\n");
 	/* Llamamos la función y detectamos si hubo algún error en la asignación */
@@ -189,6 +202,7 @@ Es como si tuviera 2 búfers contiguos de X elementos. Miremos el siguiente ejem
 ```C
 #define MAX_ARRAYS 1 /* Solo quiero un búfer contiguo */
 #include <aDynamic.h>
+#include <stdint.h>
 
 enum ID_ARRAY
 {
@@ -206,14 +220,14 @@ struct _tipo
 /* Asignamos un alias al nombre de la estructura "_tipo" */
 typedef struct _tipo tipo;
 
-int Array(tipo** pa)
+uint8_t Array(void)
 {
-	/* El puntero aux es necesario para la invocación de las macros alloc_a y realloc_a */
 	tipo* aux;
 	/* Asignamos el tamaño del array de estructura */
 	setsize(ARRAY_A, 5);
 	/* Reservamos memoria para 5 buffers contiguos */
-	alloc_a(ARRAY_A, aux);
+	alloc_a(tipo, ARRAY_A);
+	aux = getad(ARRAY_A);
 	for (int i = 0; i != getsize(ARRAY_A); ++i)
 	{
 		aux[i].a = 2.9f;
@@ -222,9 +236,7 @@ int Array(tipo** pa)
 	}
 	/* Re-dimensionamos el array de estructura a 2 buffers */
 	setsize(ARRAY_A, 2);
-	realloc_a(ARRAY_A, aux);
-	/* Mandamos la dirección de memoria del primer elemento de ese array al puntero que pasamos por referencia */
-	*pa = aux;
+	realloc_a(tipo, ARRAY_A);
 	return 0;
 }
 
@@ -232,7 +244,8 @@ int main(void)
 {
 	tipo* pa;
 	/* Pasamos la dirección de memoria del puntero PA */
-	error(Array, &pa);
+	error(Array);
+	pa = getad(ARRAY_A);
 	printf("\n");
 	printf("[Updates]: data Array A:\n\n");
 	for (int i = 0; i != getsize(ARRAY_A); ++i)
