@@ -1,5 +1,5 @@
 /*
-			mDynamic.h - Array Dynamic.
+			aDynamic.h - Array Dynamic [v1.4]
 			Copyright (c) David Román. All rights reserved.
 */
 
@@ -23,60 +23,31 @@
 
 int __amount[MAX_ARRAYS]; /* Cantidad de elementos de cada array dinámico */
 void* buf_ptr2[MAX_ARRAYS]; /* Búfer de punteros */
-void* __ptrtemp; /* Puntero temporal */
 
 #ifndef error
 	#define error(namefunc, ...) if(namefunc(__VA_ARGS__) == EXIT_FAILURE) return EXIT_FAILURE
 #endif
 
+/* Obtiene la cantidad de elementos de un arreglo dinámico */
 #define getsize(arrayid) *(__amount + arrayid)
+
+/* Asigna una cantidad de elementos para un arreglo dinámico */
 #define setsize(arrayid, value) getsize(arrayid) = value
 
-#ifndef __cplusplus
-/* Asigna/reserva memoria para un búfer de X elementos */
-#define alloc_a(arrayid, nameptr)													\
-	*(buf_ptr2 + arrayid) = malloc(*(__amount + arrayid) * sizeof *nameptr);		\
-	if (*(buf_ptr2 + arrayid) == NULL)												\
-	{																				\
-		puts(""MESSAGE_ALLOC"");													\
-		return EXIT_FAILURE;														\
-	}																				\
-	nameptr = *(buf_ptr2 + arrayid) 
-#else
-#define alloc_a(arrayid, nameptr, typedata)											\
-	*(buf_ptr2 + arrayid) = malloc(*(__amount + arrayid) * sizeof(typedata));		\
-	if (*(buf_ptr2 + arrayid) == NULL)												\
-	{																				\
-		puts(""MESSAGE_ALLOC"");													\
-		return EXIT_FAILURE;														\
-	}																				\
-	nameptr = (typedata*)*(buf_ptr2 + arrayid)
-#endif
+/* getal = getArrayElement -> Obtiene un elemento específico de un arreglo dinámico */
+#define getal(typedata, arrayid, index) (*((typedata*)*(buf_ptr2 + arrayid) + index))
 
-#ifndef __cplusplus
-/* Re-asigna memoria para un búfer de x elementos */
-#define realloc_a(arrayid, nameptr)													\
-	__ptrtemp = *(buf_ptr2 + arrayid);												\
-	*(buf_ptr2 + arrayid) = realloc(__ptrtemp, *(__amount + arrayid) * sizeof *nameptr);	\
-	if (*(buf_ptr2 + arrayid) == NULL)												\
-		{																			\
-		puts(""MESSAGE_REALLOC"");													\
-		*(buf_ptr2 + arrayid) = __ptrtemp;											\
-		return EXIT_FAILURE;														\
-		}																			\
-	nameptr = *(buf_ptr2 + arrayid)
-#else
-#define realloc_a(arrayid, nameptr, typedata)										\
-	__ptrtemp = *(buf_ptr2 + arrayid);												\
-	*(buf_ptr2 + arrayid) = realloc(__ptrtemp, *(__amount + arrayid) * sizeof(typedata));	\
-	if (*(buf_ptr2 + arrayid) == NULL)												\
-		{																			\
-		puts(""MESSAGE_REALLOC"");													\
-		*(buf_ptr2 + arrayid) = __ptrtemp;											\
-		return EXIT_FAILURE;														\
-		}																			\
-	nameptr = (typedata*)*(buf_ptr2 + arrayid)
-#endif
+/* setal = setArrayElement -> Asgina un elemento específico a un arreglo dinámico */
+#define setal(typedata, arrayid, index, value) getal(typedata, arrayid, index) = value
+
+/* getad= getAddress -> Obtiene la dirección de memoria del primer elemento de un arreglo dinámico */
+#define getad(arrayid) *(buf_ptr2 + arrayid)
+
+/* Asigna memoria dinámicamente */
+#define alloc_a(typedata, arrayid) if(alloc_aEx(arrayid, sizeof(typedata)) == NULL) return EXIT_FAILURE
+
+/* Re-asigna memoria dinámica */
+#define realloc_a(typedata, arrayid) if(realloc_aEx(arrayid, sizeof(typedata)) == NULL) return EXIT_FAILURE
 
 /* Libera la memoria de todos los arrays dinámicos que existan en el heap */
 #define free_a()																	\
@@ -92,8 +63,33 @@ for (unsigned int __arrayid = 0; __arrayid != MAX_ARRAYS; ++__arrayid)				\
 #define dmat_a(arrayid)																\
 free(*(buf_ptr2 + arrayid));														\
 *(buf_ptr2 + arrayid) = NULL;														\
-*(__amount + arrayid) = 0													
+*(__amount + arrayid) = 0	
 
+void* alloc_aEx(size_t arrayid, size_t size)
+{
+	*(buf_ptr2 + arrayid) = malloc(*(__amount + arrayid) * size);
+	if (*(buf_ptr2 + arrayid) == NULL)												
+	{																				
+		puts(""MESSAGE_ALLOC"");													
+		return NULL;														
+	}
+	return *(buf_ptr2 + arrayid);
+}
+
+void* realloc_aEx(size_t arrayid, size_t size)
+{
+	void* __ptrtemp = *(buf_ptr2 + arrayid);												
+	*(buf_ptr2 + arrayid) = realloc(__ptrtemp, *(__amount + arrayid) * size);	
+	if (*(buf_ptr2 + arrayid) == NULL)												
+	{																				
+		puts(""MESSAGE_REALLOC"");													
+		*(buf_ptr2 + arrayid) = __ptrtemp;											
+		return NULL;														
+	}
+	return *(buf_ptr2 + arrayid);
+}
+
+												
 /* Hook/enganche a main */
 
 int aDynamic_main();
